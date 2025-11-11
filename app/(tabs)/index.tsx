@@ -1,6 +1,6 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Alert, StyleSheet, Text, View, Animated, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, View, Animated, TouchableOpacity, useColorScheme } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { detectObjects } from "../../lib/visionApi";
 
@@ -12,6 +12,8 @@ export default function ObjectDetectScreen() {
   const [autoDetecting, setAutoDetecting] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(100)).current;
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   useEffect(() => {
     if (!autoDetecting) return;
@@ -62,12 +64,12 @@ export default function ObjectDetectScreen() {
   if (!permission) return <View />;
   if (!permission.granted)
     return (
-      <View style={styles.centered}>
-        <MaterialCommunityIcons name="camera-off" size={64} color="#9E9E9E" />
-        <Text style={styles.permissionTitle}>Camera Access Required</Text>
-        <Text style={styles.permissionText}>We need camera access to detect objects.</Text>
-        <TouchableOpacity onPress={requestPermission} style={styles.grantButton}>
-          <Text style={styles.grantButtonText}>Grant Permission</Text>
+      <View style={[styles(isDark).centered]}>
+        <MaterialCommunityIcons name="camera-off" size={64} color={isDark ? "#9E9E9E" : "#9E9E9E"} />
+        <Text style={styles(isDark).permissionTitle}>Camera Access Required</Text>
+        <Text style={styles(isDark).permissionText}>We need camera access to detect objects.</Text>
+        <TouchableOpacity onPress={requestPermission} style={styles(isDark).grantButton}>
+          <Text style={styles(isDark).grantButtonText}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
     );
@@ -81,7 +83,7 @@ export default function ObjectDetectScreen() {
       />
       <Animated.View 
         style={[
-          styles.overlay,
+          styles(isDark).overlay,
           {
             opacity: fadeAnim,
             transform: [{ translateY: slideAnim }]
@@ -89,15 +91,15 @@ export default function ObjectDetectScreen() {
         ]}
       >
         {loading ? (
-          <View style={styles.loadingContainer}>
+          <View style={styles(isDark).loadingContainer}>
             <ActivityIndicator size="large" color="#4285F4" />
-            <Text style={styles.loadingText}>Analyzing image...</Text>
+            <Text style={styles(isDark).loadingText}>Analyzing image...</Text>
           </View>
         ) : results.length > 0 ? (
-          <View style={styles.resultsContainer}>
-            <View style={styles.headerRow}>
+          <View style={styles(isDark).resultsContainer}>
+            <View style={styles(isDark).headerRow}>
               <MaterialCommunityIcons name="eye-check" size={24} color="#4285F4" />
-              <Text style={styles.headerText}>Detected Objects</Text>
+              <Text style={styles(isDark).headerText}>Detected Objects</Text>
             </View>
             {results.map((r, i) => {
               const [label, confidence] = r.split(' (');
@@ -107,7 +109,7 @@ export default function ObjectDetectScreen() {
                 <Animated.View 
                   key={i} 
                   style={[
-                    styles.resultCard,
+                    styles(isDark).resultCard,
                     {
                       opacity: fadeAnim,
                       transform: [{
@@ -119,20 +121,20 @@ export default function ObjectDetectScreen() {
                     }
                   ]}
                 >
-                  <View style={styles.resultIcon}>
+                  <View style={styles(isDark).resultIcon}>
                     <MaterialCommunityIcons 
                       name={getIconForLabel(label)} 
                       size={24} 
                       color="#4285F4" 
                     />
                   </View>
-                  <View style={styles.resultContent}>
-                    <Text style={styles.resultLabel}>{label}</Text>
-                    <View style={styles.confidenceContainer}>
-                      <View style={[styles.confidenceBar, { width: `${confidenceValue}%` }]} />
+                  <View style={styles(isDark).resultContent}>
+                    <Text style={styles(isDark).resultLabel}>{label}</Text>
+                    <View style={styles(isDark).confidenceContainer}>
+                      <View style={[styles(isDark).confidenceBar, { width: `${confidenceValue}%` }]} />
                     </View>
                   </View>
-                  <Text style={styles.confidenceText}>
+                  <Text style={styles(isDark).confidenceText}>
                     {confidence?.replace(')', '')}
                   </Text>
                 </Animated.View>
@@ -140,10 +142,10 @@ export default function ObjectDetectScreen() {
             })}
           </View>
         ) : (
-          <View style={styles.placeholderContainer}>
-            <MaterialCommunityIcons name="magnify-scan" size={48} color="#9E9E9E" />
-            <Text style={styles.placeholder}>Scanning for objects...</Text>
-            <Text style={styles.placeholderSubtext}>Point your camera at objects to detect them</Text>
+          <View style={styles(isDark).placeholderContainer}>
+            <MaterialCommunityIcons name="magnify-scan" size={48} color={isDark ? "#9E9E9E" : "#9E9E9E"} />
+            <Text style={styles(isDark).placeholder}>Scanning for objects...</Text>
+            <Text style={styles(isDark).placeholderSubtext}>Point your camera at objects to detect them</Text>
           </View>
         )}
       </Animated.View>
@@ -170,13 +172,13 @@ function getIconForLabel(label: string): any {
   return 'tag';
 }
 
-const styles = StyleSheet.create({
+const styles = (isDark: boolean) => StyleSheet.create({
   overlay: {
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: isDark ? "#1F1F1F" : "#FFFFFF",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingTop: 24,
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: -4,
     },
-    shadowOpacity: 0.15,
+    shadowOpacity: isDark ? 0.4 : 0.15,
     shadowRadius: 12,
     elevation: 16,
   },
@@ -198,7 +200,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    color: "#5F6368",
+    color: isDark ? "#E8EAED" : "#5F6368",
     fontSize: 16,
     fontWeight: "500",
   },
@@ -214,23 +216,23 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#202124",
+    color: isDark ? "#E8EAED" : "#202124",
   },
   resultCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F8F9FA",
+    backgroundColor: isDark ? "#2C2C2C" : "#F8F9FA",
     borderRadius: 16,
     padding: 16,
     gap: 12,
     borderWidth: 1,
-    borderColor: "#E8EAED",
+    borderColor: isDark ? "#3C4043" : "#E8EAED",
   },
   resultIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#E8F0FE",
+    backgroundColor: isDark ? "#1A3A52" : "#E8F0FE",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -239,13 +241,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   resultLabel: {
-    color: "#202124",
+    color: isDark ? "#E8EAED" : "#202124",
     fontSize: 16,
     fontWeight: "600",
   },
   confidenceContainer: {
     height: 4,
-    backgroundColor: "#E8EAED",
+    backgroundColor: isDark ? "#3C4043" : "#E8EAED",
     borderRadius: 2,
     overflow: "hidden",
   },
@@ -255,7 +257,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   confidenceText: {
-    color: "#5F6368",
+    color: isDark ? "#9AA0A6" : "#5F6368",
     fontSize: 14,
     fontWeight: "600",
   },
@@ -265,7 +267,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   placeholder: {
-    color: "#5F6368",
+    color: isDark ? "#9AA0A6" : "#5F6368",
     fontSize: 18,
     fontWeight: "600",
     marginTop: 8,
@@ -279,19 +281,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: isDark ? "#1F1F1F" : "#FFFFFF",
     paddingHorizontal: 32,
     gap: 16,
   },
   permissionTitle: {
     fontSize: 24,
     fontWeight: "600",
-    color: "#202124",
+    color: isDark ? "#E8EAED" : "#202124",
     marginTop: 16,
   },
   permissionText: {
     fontSize: 16,
-    color: "#5F6368",
+    color: isDark ? "#9AA0A6" : "#5F6368",
     textAlign: "center",
     marginBottom: 8,
   },
