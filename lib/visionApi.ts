@@ -6,7 +6,7 @@
  * 2. Google Cloud Vision (requires API key)
  * 3. Demo mode (for offline testing)
  */
-
+const api_ = process.env.API_KEY; // Add your Google Vision API key in .env file
 export interface DetectionResult {
   label: string;
   confidence: number;
@@ -14,7 +14,7 @@ export interface DetectionResult {
 
 // Configuration
 const USE_DEMO_MODE = false; // Set to false to use real API
-const GOOGLE_VISION_API_KEY = "AIzaSyCjC-SHXL1dVUIp6CpdLQQJlBTTjP2C5UU"; // Add your key here
+const GOOGLE_VISION_API_KEY = api_; // Add your key here
 
 
 
