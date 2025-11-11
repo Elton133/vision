@@ -17,13 +17,6 @@ const USE_DEMO_MODE = false; // Set to false to use real API
 const GOOGLE_VISION_API_KEY = api_; // Add your key here
 
 
-
-
-
-
-/**
- * Analyze image using Google Cloud Vision
- */
 async function analyzeWithGoogleVision(base64: string): Promise<DetectionResult[]> {
   if (!GOOGLE_VISION_API_KEY) {
     throw new Error("Google Vision API key not configured");
